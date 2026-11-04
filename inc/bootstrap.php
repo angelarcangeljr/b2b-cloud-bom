@@ -1,12 +1,62 @@
 <?php
 declare(strict_types=1);
 
-$cfgFile = __DIR__ . '/../config.php';
-if (!is_file($cfgFile)) {
-    http_response_code(500);
-    exit('Setup needed: copy config.sample.php to config.php and enter your database details.');
+/* Settings come from .env (or real environment variables), else from config.php. */
+function load_dotenv(string $file): void
+{
+    if (!is_file($file) || !is_readable($file)) return;
+    foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        if (str_starts_with($line, 'export ')) $line = trim(substr($line, 7));
+        $eq = strpos($line, '=');
+        if ($eq === false) continue;
+        $key = trim(substr($line, 0, $eq));
+        $val = trim(substr($line, $eq + 1));
+        if (!preg_match('~^[A-Z_][A-Z0-9_]*$~', $key)) continue;
+        if (strlen($val) >= 2 && ($val[0] === '"' || $val[0] === "'") && substr($val, -1) === $val[0]) {
+            $q = $val[0];
+            $val = substr($val, 1, -1);
+            if ($q === '"') $val = str_replace(['\\n', '\\"', '\\\\'], ["\n", '"', '\\'], $val);
+        } else {
+            $val = trim(preg_replace('~\s+#.*$~', '', $val));
+        }
+        if (getenv($key) === false) { putenv("$key=$val"); $_ENV[$key] = $val; }
+    }
 }
-$CFG = require $cfgFile;
+function env(string $key, $default = null)
+{
+    $v = getenv($key);
+    return ($v === false || $v === '') ? $default : $v;
+}
+function env_bool(string $key, bool $default = false): bool
+{
+    $v = env($key);
+    return $v === null ? $default : in_array(strtolower((string)$v), ['1', 'true', 'yes', 'on'], true);
+}
+
+load_dotenv(__DIR__ . '/../.env');
+$cfgFile = __DIR__ . '/../config.php';
+if (env('DB_NAME') !== null || env('DB_USER') !== null) {
+    $CFG = [
+        'db' => [
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => (int)env('DB_PORT', 3306),
+            'name' => env('DB_NAME', 'solution_builder'),
+            'user' => env('DB_USER', 'root'),
+            'pass' => (string)env('DB_PASS', ''),
+        ],
+        'app_name' => env('APP_NAME', 'Solution Summary Builder'),
+        'session_minutes' => (int)env('SESSION_MINUTES', 480),
+        'max_template_mb' => (int)env('MAX_TEMPLATE_MB', 10),
+        'debug' => env_bool('APP_DEBUG'),
+    ];
+} elseif (is_file($cfgFile)) {
+    $CFG = require $cfgFile;
+} else {
+    http_response_code(500);
+    exit('Setup needed: copy .env.example to .env (or config.sample.php to config.php) and enter your database details.');
+}
 
 ini_set('display_errors', !empty($CFG['debug']) ? '1' : '0');
 error_reporting(E_ALL);

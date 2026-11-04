@@ -3,3 +3,4 @@ config.php
 .DS_Store
 Thumbs.db
 __pycache__/
+.env

@@ -1,5 +1,5 @@
 # Apache: keep configuration and SQL out of reach; PHP pages stay public.
 Options -Indexes
-<FilesMatch "^(config\.php|config\.sample\.php|schema\.sql|README\.md)$">
+<FilesMatch "^(\.env.*|config\.php|config\.sample\.php|schema\.sql|README\.md|router\.php|start-mac\.sh)$">
   Require all denied
 </FilesMatch>
