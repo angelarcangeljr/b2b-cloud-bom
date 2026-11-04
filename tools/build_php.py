@@ -132,3 +132,31 @@ rep('''else if (b.id === "btnExample" || b.id === "btnClear") {''',
 (out / 'builder.css').write_text(css)
 (out / 'builder.js').write_text('/* Solution Summary Builder — generated from solution-builder.html by build_php.py */\n' + js)
 print('css', len(css), 'js', len(js))
+
+# GitHub Pages: one static page (no PHP, no database; saves in the browser)
+body = re.search(r'(<div class="wrap">.*?</div>\n</div>)\n', src, re.S).group(1)
+cdn = "\n".join(re.findall(r'<script src="https://[^"]+"></script>', src))
+page = f'''<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solution Summary Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+{css}</style>
+</head>
+<body>
+{body}
+{cdn}
+<script>
+{js}</script>
+</body>
+</html>
+'''
+docs = here.parent / 'docs'
+docs.mkdir(exist_ok=True)
+(docs / 'index.html').write_text(page)
+(docs / '.nojekyll').write_text('')
+print('docs/index.html', len(page))
