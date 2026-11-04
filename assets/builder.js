@@ -64,7 +64,7 @@ const PROVIDERS = {
     tools: { server: "Migrate to Virtual Machines", db: ["Database Migration Service", 0], dbconv: "Database Migration Service conversion workspace", data: "Storage Transfer Service", offline: ["Transfer Appliance (per job)", 300] },
     support: { pct: 0.03, min: 29 } },
   huawei: { name: "Huawei Cloud", short: "Huawei", color: "var(--huawei)", net: "VPC", zone: "AZ",
-    regions: ["AP-Singapore", "AP-Jakarta", "AP-Bangkok", "CN-Hong Kong", "AF-Johannesburg", "LA-Mexico City2"],
+    regions: ["AP-Manila", "AP-Singapore", "AP-Jakarta", "AP-Bangkok", "CN-Hong Kong", "AF-Johannesburg", "LA-Mexico City2"],
     vm: { s: ["Elastic Cloud Server c7.large.4", 62], m: ["Elastic Cloud Server c7.xlarge.4", 124], l: ["Elastic Cloud Server c7.2xlarge.4", 248] },
     svc: {
       dns: ["Huawei Cloud DNS", 1], cdn: ["Huawei Cloud CDN", 60], waf: ["Web Application Firewall (WAF)", 250], lb: ["Elastic Load Balance (dedicated)", 30],
